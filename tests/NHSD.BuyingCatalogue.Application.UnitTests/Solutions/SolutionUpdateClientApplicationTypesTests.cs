@@ -35,24 +35,18 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Solutions
         public async Task ShouldUpdateSolutionClientApplicationTypesAndNothingElse()
         {
             SetUpMockSolutionRepositoryGetByIdAsync("{ 'ClientApplicationTypes' : [ 'browser-based', 'native-mobile' ], 'BrowsersSupported' : [ 'Chrome', 'Edge' ], 'MobileResponsive': true }");
-            var calledBack = false;
+            var calledBack = SetUpCallback((jsonString) =>
+            {
+                var json = JToken.Parse(jsonString);
 
-            // verification done in a callback
-            Context.MockMarketingDetailRepository
-                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
-                {
-                    calledBack = true;
-                    var json = JToken.Parse(updateSolutionClientApplicationRequest.ClientApplication);
-
-                    json.ReadStringArray("ClientApplicationTypes")
-                        .ShouldContainOnly(new List<string> { "native-mobile", "native-desktop" })
-                        .ShouldNotContain("browser-based");
-                    json.ReadStringArray("BrowsersSupported")
-                        .ShouldContainOnly(new List<string> { "Chrome", "Edge" });
-                    json.SelectToken("MobileResponsive").Value<bool>()
-                        .Should().BeTrue();
-                });
+                json.ReadStringArray("ClientApplicationTypes")
+                    .ShouldContainOnly(new List<string> { "native-mobile", "native-desktop" })
+                    .ShouldNotContain("browser-based");
+                json.ReadStringArray("BrowsersSupported")
+                    .ShouldContainOnly(new List<string> { "Chrome", "Edge" });
+                json.SelectToken("MobileResponsive").Value<bool>()
+                    .Should().BeTrue();
+            });
 
             await UpdateClientApplicationTypes(new HashSet<string> { "native-desktop", "native-mobile" });
 
@@ -80,20 +74,14 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Solutions
         public async Task ShouldUpdateEmptySolutionClientApplicationTypesAndNothingElse()
         {
             SetUpMockSolutionRepositoryGetByIdAsync("{ 'ClientApplicationTypes' : [ 'browser-based', 'native-mobile' ], 'BrowsersSupported' : [ 'Chrome', 'Edge' ], 'MobileResponsive': true }");
-            var calledBack = false;
+            var calledBack = SetUpCallback((jsonString) =>
+            {
+                var json = JToken.Parse(jsonString);
 
-            // verification done in a callback
-            Context.MockMarketingDetailRepository
-                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
-                {
-                    calledBack = true;
-                    var json = JToken.Parse(updateSolutionClientApplicationRequest.ClientApplication);
-
-                    json.ReadStringArray("ClientApplicationTypes").Should().BeEmpty();
-                    json.ReadStringArray("BrowsersSupported").ShouldContainOnly(new List<string> { "Chrome", "Edge" });
-                    json.SelectToken("MobileResponsive").Value<bool>().Should().BeTrue();
-                });
+                json.ReadStringArray("ClientApplicationTypes").Should().BeEmpty();
+                json.ReadStringArray("BrowsersSupported").ShouldContainOnly(new List<string> { "Chrome", "Edge" });
+                json.SelectToken("MobileResponsive").Value<bool>().Should().BeTrue();
+            });
 
             await UpdateClientApplicationTypes(new HashSet<string>());
 
@@ -122,20 +110,14 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Solutions
         {
             SetUpMockSolutionRepositoryGetByIdAsync("{ 'ClientApplicationTypes' : [ 'browser-based', 'native-mobile' ], 'BrowsersSupported' : [ 'Chrome', 'Edge' ], 'MobileResponsive': true }");
 
-            var calledBack = false;
+            var calledBack = SetUpCallback((jsonString) =>
+            {
+                var json = JToken.Parse(jsonString);
 
-            // verification done in a callback
-            Context.MockMarketingDetailRepository
-                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
-                {
-                    calledBack = true;
-                    var json = JToken.Parse(updateSolutionClientApplicationRequest.ClientApplication);
-
-                    json.ReadStringArray("ClientApplicationTypes").ShouldContainOnly(new List<string> { "native-mobile", "native-desktop", "browser-based" });
-                    json.ReadStringArray("BrowsersSupported").ShouldContainOnly(new List<string> { "Chrome", "Edge" });
-                    json.SelectToken("MobileResponsive").Value<bool>().Should().BeTrue();
-                });
+                json.ReadStringArray("ClientApplicationTypes").ShouldContainOnly(new List<string> { "native-mobile", "native-desktop", "browser-based" });
+                json.ReadStringArray("BrowsersSupported").ShouldContainOnly(new List<string> { "Chrome", "Edge" });
+                json.SelectToken("MobileResponsive").Value<bool>().Should().BeTrue();
+            });
 
             await UpdateClientApplicationTypes(new HashSet<string> { "browser-based", "curry", "native-mobile", "native-desktop", "elephant", "anteater", "blue", null, "" });
 
@@ -148,22 +130,16 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Solutions
         public async Task ShouldIgnoreUnknownClientApplicationTypesAndBrowsersSupportedRemainEmpty()
         {
             SetUpMockSolutionRepositoryGetByIdAsync("{ 'ClientApplicationTypes' : [ 'browser-based', 'native-mobile' ], 'BrowsersSupported' : [ ]}");
-            var calledBack = false;
+            var calledBack = SetUpCallback((jsonString) =>
+            {
+                var json = JToken.Parse(jsonString);
 
-            // verification done in a callback
-            Context.MockMarketingDetailRepository
-                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
-                {
-                    calledBack = true;
-                    var json = JToken.Parse(updateSolutionClientApplicationRequest.ClientApplication);
-
-                    json.ReadStringArray("ClientApplicationTypes")
-                        .ShouldContainOnly(new List<string> { "native-mobile", "native-desktop", "browser-based" })
-                        .ShouldNotContainAnyOf(new List<string> { "curry", "elephant", "anteater", "blue", "" });
-                    json.ReadStringArray("BrowsersSupported").Should().BeEmpty();
-                    json.SelectToken("MobileResponsive").Should().BeNullOrEmpty();
-                });
+                json.ReadStringArray("ClientApplicationTypes")
+                    .ShouldContainOnly(new List<string> { "native-mobile", "native-desktop", "browser-based" })
+                    .ShouldNotContainAnyOf(new List<string> { "curry", "elephant", "anteater", "blue", "" });
+                json.ReadStringArray("BrowsersSupported").Should().BeEmpty();
+                json.SelectToken("MobileResponsive").Should().BeNullOrEmpty();
+            });
 
             await UpdateClientApplicationTypes(new HashSet<string> { "browser-based", "curry", "native-mobile", "native-desktop", "elephant", "anteater", "blue", null, "" });
 

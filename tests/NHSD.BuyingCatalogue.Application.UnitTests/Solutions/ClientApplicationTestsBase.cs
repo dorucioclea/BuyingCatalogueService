@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Moq;
 using NHSD.BuyingCatalogue.Contracts.Persistence;
@@ -24,6 +25,17 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Tools
             existingSolution.Setup(s => s.ClientApplication).Returns(clientApplicationJson);
 
             Context.MockSolutionRepository.Setup(r => r.ByIdAsync("Sln1", It.IsAny<CancellationToken>())).ReturnsAsync(existingSolution.Object);
+        }
+
+        protected bool SetUpCallback(Action<string> assertFunc)
+        {
+            Context.MockMarketingDetailRepository
+                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
+                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
+                {
+                    assertFunc(updateSolutionClientApplicationRequest.ClientApplication);
+                });
+            return true;
         }
     }
 }
