@@ -11,6 +11,8 @@ namespace NHSD.BuyingCatalogue.API.Infrastructure.HealthChecks
 {
     public class PersistenceLayerHealthCheck : IHealthCheck
     {
+        private const string ErrorMessage = "Persistence layer health check failed.";
+
         private readonly IRepositoryHealthCheck _repositoryHealthCheck;
         private readonly ILogger<PersistenceLayerHealthCheck> _logger;
 
@@ -40,7 +42,9 @@ namespace NHSD.BuyingCatalogue.API.Infrastructure.HealthChecks
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Persistence layer health check failed.");
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                _logger.LogError(exception, ErrorMessage);
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
                 healthStatus = new HealthCheckResult(context.ThrowIfNull().Registration.FailureStatus, exception: exception);
             }
