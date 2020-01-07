@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using NHSD.BuyingCatalogue.API.Properties;
 using NHSD.BuyingCatalogue.Contracts.Infrastructure.HealthChecks;
 using NHSD.BuyingCatalogue.Infrastructure;
 
@@ -41,7 +40,7 @@ namespace NHSD.BuyingCatalogue.API.Infrastructure.HealthChecks
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, Resources.HealthCheckFailed);
+                _logger.LogError(exception, "Persistence layer health check failed.");
 
                 healthStatus = new HealthCheckResult(context.ThrowIfNull().Registration.FailureStatus, exception: exception);
             }
