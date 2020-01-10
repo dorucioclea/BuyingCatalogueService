@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using Moq;
-using NHSD.BuyingCatalogue.Contracts.Persistence;
+using NHSD.BuyingCatalogue.Solutions.Contracts.Persistence;
 using NUnit.Framework;
 
-namespace NHSD.BuyingCatalogue.Application.UnitTests.Tools
+namespace NHSD.BuyingCatalogue.Solutions.Application.UnitTests.Solutions
 {
     internal class ClientApplicationTestsBase
     {
@@ -29,9 +29,11 @@ namespace NHSD.BuyingCatalogue.Application.UnitTests.Tools
 
         protected bool SetUpCallback(Action<string> assertFunc)
         {
-            Context.MockMarketingDetailRepository
-                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest, CancellationToken cancellationToken) =>
+            Context.MockSolutionDetailRepository
+                .Setup(r => r.UpdateClientApplicationAsync(It.IsAny<IUpdateSolutionClientApplicationRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback((IUpdateSolutionClientApplicationRequest updateSolutionClientApplicationRequest,
+                    CancellationToken cancellationToken) =>
                 {
                     assertFunc(updateSolutionClientApplicationRequest.ClientApplication);
                 });
