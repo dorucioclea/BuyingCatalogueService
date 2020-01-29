@@ -20,12 +20,9 @@ steps:
     dockerVersion: $(dockerVersion)
   displayName: 'Docker: Install - $(dockerVersion)'
 
-- task: AzurePowerShell@4
-  displayName: 'Setup Test Database'
+- task: Bash@3
   inputs:
-    azureSubscription: 'NHSAPP-BuyingCatalogue (Non-Prod)'
-    ScriptPath: 'setup-integration-db.ps1'
-    azurePowerShellVersion: LatestVersion
+    filePath: 'setup-integration-db.sh'
 
 - task: UseDotNet@2
   displayName: 'Use DotNet Core $(dotnetVersion)'
